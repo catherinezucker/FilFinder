@@ -1,5 +1,11 @@
 from __future__ import print_function
 from __future__ import absolute_import
+from __future__ import division
+from builtins import zip
+from builtins import str
+from builtins import range
+from builtins import object
+from past.utils import old_div
 # Licensed under an MIT open source license - see LICENSE
 
 from .cores import *
@@ -162,7 +168,7 @@ class fil_finder_2D(object):
             thresh_val = scoreatpercentile(self.image[~np.isnan(self.image)],
                                            flatten_thresh)
 
-        self.flat_img = np.arctan(self.image / thresh_val)
+        self.flat_img = np.arctan(old_div(self.image, thresh_val))
 
         if distance is None:
             print("No distance given. Results will be in pixel units.")
@@ -171,10 +177,10 @@ class fil_finder_2D(object):
             self.beamwidth = beamwidth * (hdr["CDELT2"] * 3600) ** (-1)
             self.pixel_unit_flag = True
         else:
-            self.imgscale = (hdr['CDELT2'] * (np.pi / 180.0) * distance)  # pc
+            self.imgscale = (hdr['CDELT2'] * (old_div(np.pi, 180.0)) * distance)  # pc
             self.beamwidth = (
-                beamwidth / np.sqrt(8 * np.log(2.))) * \
-                (1 / 206265.) * distance
+                old_div(beamwidth, np.sqrt(8 * np.log(2.)))) * \
+                (old_div(1, 206265.)) * distance
             self.pixel_unit_flag = False
 
         # Angular conversion (sr/pixel^2)
@@ -297,10 +303,10 @@ class fil_finder_2D(object):
             # incorporate sparsity.
         if self.adapt_thresh is None:
             # twice average FWHM for filaments
-            self.adapt_thresh = round(0.2 / self.imgscale)
+            self.adapt_thresh = round(old_div(0.2, self.imgscale))
         if self.smooth_size is None:
             # half average FWHM for filaments
-            self.smooth_size = round(0.05 / self.imgscale)
+            self.smooth_size = round(old_div(0.05, self.imgscale))
 
         # Check if regridding is even necessary
         if self.adapt_thresh >= 40 and regrid:
@@ -336,7 +342,7 @@ class fil_finder_2D(object):
             # Calculate the needed zoom to make the patch size ~40 pixels
             ratio = 40 / self.adapt_thresh
             # Round to the nearest factor of 2
-            regrid_factor = np.min([2., int(round(ratio/2.0)*2.0)])
+            regrid_factor = np.min([2., int(round(old_div(ratio,2.0))*2.0)])
 
             # Defaults to cubic interpolation
             masking_img = nd.zoom(flat_copy, (regrid_factor, regrid_factor))
@@ -362,7 +368,7 @@ class fil_finder_2D(object):
 
         if regrid:
             regrid_factor = float(regrid_factor)
-            adapt = nd.zoom(adapt, (1/regrid_factor, 1/regrid_factor), order=0)
+            adapt = nd.zoom(adapt, (old_div(1,regrid_factor), old_div(1,regrid_factor)), order=0)
 
         # Remove areas near the image border
         adapt = adapt * nan_mask
@@ -381,7 +387,7 @@ class fil_finder_2D(object):
         # Remove small holes within the object
 
         if fill_hole_size is None:
-            fill_hole_size = np.pi*(self.beamwidth/self.imgscale)**2
+            fill_hole_size = np.pi*(old_div(self.beamwidth,self.imgscale))**2
 
         mask_objs, num, corners = \
             isolateregions(cleaned, fill_hole=True, rel_size=fill_hole_size,
@@ -595,7 +601,7 @@ class fil_finder_2D(object):
 
         # Set the skeleton length threshold to some factor of the beam width
         if self.skel_thresh is None:
-            self.skel_thresh = round(0.3 / self.imgscale)
+            self.skel_thresh = round(old_div(0.3, self.imgscale))
                 # round( self.beamwidth * nbeam_lengths / self.imgscale)
         elif skel_thresh is not None:
             self.skel_thresh = skel_thresh
@@ -821,9 +827,9 @@ class fil_finder_2D(object):
 
                 if verbose or save_png:
                     ax1 = p.subplot(121, polar=True)
-                    ax1.plot(2 * theta, R / R.max(), "kD")
+                    ax1.plot(2 * theta, old_div(R, R.max()), "kD")
                     ax1.fill_between(2 * theta, 0,
-                                     R[:, 0] / R.max(),
+                                     old_div(R[:, 0], R.max()),
                                      facecolor="blue",
                                      interpolate=True, alpha=0.5)
                     ax1.set_rmax(1.0)
@@ -1084,8 +1090,8 @@ class fil_finder_2D(object):
             posns = np.where(dist_array < max_radius)
             model_image[posns] += \
                 (param[0] - param[2]) * \
-                np.exp(-np.power(dist_array[posns], 2) /
-                       (2*(param[1]/scale)**2))
+                np.exp(old_div(-np.power(dist_array[posns], 2),
+                       (2*(old_div(param[1],scale))**2)))
 
         return model_image
 
@@ -1108,7 +1114,7 @@ class fil_finder_2D(object):
 
         fil_model = self.filament_model(max_radius=max_radius)
 
-        self.covering_fraction = np.nansum(fil_model) / np.nansum(self.image)
+        self.covering_fraction = old_div(np.nansum(fil_model), np.nansum(self.image))
 
         return self
 
@@ -1221,8 +1227,8 @@ class fil_finder_2D(object):
         for n in range(self.number_of_filaments):
 
             branch_df = \
-                Table([branch_data[key][n] for key in branch_data.keys()],
-                      names=branch_data.keys())
+                Table([branch_data[key][n] for key in list(branch_data.keys())],
+                      names=list(branch_data.keys()))
 
             branch_filename = save_name + "_branch_" + str(n)
 

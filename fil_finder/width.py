@@ -1,5 +1,8 @@
 from __future__ import print_function
 from __future__ import absolute_import
+from __future__ import division
+from builtins import range
+from past.utils import old_div
 # Licensed under an MIT open source license - see LICENSE
 
 from .utilities import *
@@ -80,14 +83,14 @@ def cyl_model(distance, rad_profile, img_beam):
 
     p0 = (np.max(rad_profile), 0.1, 2.0)
 
-    A_p_func = lambda u, p: (1 + u ** 2.) ** (-p / 2.)
+    A_p_func = lambda u, p: (1 + u ** 2.) ** (old_div(-p, 2.))
 
     def model(r, *params):
         peak_dens, r_flat, p = params[0], params[1], params[2]
 
         A_p = quad(A_p_func, -np.inf, np.inf, args=(p))[0]
 
-        return A_p * (peak_dens * r_flat) / (1 + r / r_flat) ** ((p - 1) / 2.)
+        return A_p * (peak_dens * r_flat) / (1 + old_div(r, r_flat)) ** (old_div((p - 1), 2.))
 
     try:
         fit, cov = op.curve_fit(
@@ -178,7 +181,7 @@ def gauss_model(distance, rad_profile, weights, img_beam):
     deconv = (factor * fit[1]) ** 2. - img_beam ** 2.
     if deconv > 0:
         fit_errors = np.append(
-            fit_errors, (factor * fit[1] * fit_errors[1]) / np.sqrt(deconv))
+            fit_errors, old_div((factor * fit[1] * fit_errors[1]), np.sqrt(deconv)))
         fit = np.append(fit, np.sqrt(deconv))
     else:  # Set to zero, can't be deconvolved
         fit = np.append(fit, 0.0)
@@ -308,8 +311,8 @@ def nonparam_width(distance, rad_profile, unbin_dist, unbin_prof,
 
     # Find the width by looking for where the intensity drops to 1/e from the
     # peak
-    target_intensity = (peak_intens - bkg_intens) / \
-        (2 * np.sqrt(2 * np.log(2))) + bkg_intens
+    target_intensity = old_div((peak_intens - bkg_intens), \
+        (2 * np.sqrt(2 * np.log(2)))) + bkg_intens
     fwhm_width = interp_bins[
         np.where(interp_profile ==
                  find_nearest(interp_profile, target_intensity))][0]
@@ -327,13 +330,13 @@ def nonparam_width(distance, rad_profile, unbin_dist, unbin_prof,
     # Deconvolve the width with the beam size.
     factor = 2 * np.sqrt(2 * np.log(2))  # FWHM factor
 
-    width = fwhm_width / factor
-    width_error = fwhm_error / factor
+    width = old_div(fwhm_width, factor)
+    width_error = old_div(fwhm_error, factor)
 
     deconv = fwhm_width ** 2. - img_beam ** 2.
     if deconv > 0:
         fwhm_width = np.sqrt(deconv)
-        fwhm_error = (factor * width * width_error) / fwhm_width
+        fwhm_error = old_div((factor * width * width_error), fwhm_width)
     else:  # Set to zero, can't be deconvolved
         # If you can't devolve it, set it to minimum, which is the beam-size.
         fwhm_width = 0.0
@@ -435,9 +438,9 @@ def radial_profile(img, dist_transform_all, dist_transform_sep, offsets,
     width_distance = np.asarray(width_distance)
 
     if max_distance is not None:
-        width_value = width_value[width_distance <= max_distance/img_scale]
+        width_value = width_value[width_distance <= old_div(max_distance,img_scale)]
         width_distance = \
-            width_distance[width_distance <= max_distance/img_scale]
+            width_distance[width_distance <= old_div(max_distance,img_scale)]
 
     # Binning
     if bins is None:
@@ -450,7 +453,7 @@ def radial_profile(img, dist_transform_all, dist_transform_sep, offsets,
             bins = np.linspace(0, maxbin, nbins + 1)
 
     whichbins = np.digitize(width_distance, bins)
-    bin_centers = (bins[1:] + bins[:-1]) / 2.0
+    bin_centers = old_div((bins[1:] + bins[:-1]), 2.0)
     radial_prof = np.array(
         [np.median(width_value[(whichbins == bin)]) for bin in
          range(1, int(nbins) + 1)])
@@ -535,9 +538,9 @@ def _smooth_and_cut(bins, values, kern_size, weights, interp_factor=10,
 
     # Look for local max and mins (must hold True for range of ~0.05 pc)
     loc_mins = argrelmin(grad,
-                         order=int(0.05/(smooth_bins[1] - smooth_bins[0])))[0]
+                         order=int(old_div(0.05,(smooth_bins[1] - smooth_bins[0]))))[0]
     loc_maxs = argrelmax(grad,
-                         order=int(0.05/(smooth_bins[1] - smooth_bins[0])))[0]
+                         order=int(old_div(0.05,(smooth_bins[1] - smooth_bins[0]))))[0]
 
     # Discard below 0.1 pc.
     loc_mins = loc_mins[smooth_bins[loc_mins] > 0.1]

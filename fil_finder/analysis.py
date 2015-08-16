@@ -1,4 +1,9 @@
 from __future__ import print_function
+from __future__ import division
+from builtins import str
+from builtins import range
+from builtins import object
+from past.utils import old_div
 # Licensed under an MIT open source license - see LICENSE
 
 import numpy as np
@@ -84,10 +89,10 @@ class Analysis(object):
             nrows = num
           elif num <= 8:
             ncols = 2
-            nrows = num / 2
+            nrows = old_div(num, 2)
           else:  # Max columns right now is 12
             ncols = 3
-            nrows = num / 3
+            nrows = old_div(num, 3)
           # Check if we need an extra row.
           if num % ncols != 0:
             nrows += 1
@@ -168,8 +173,8 @@ class Analysis(object):
           dim = lbdim + plotdim + trdim
           fig, axes = plt.subplots(nrows=num, ncols=num, figsize=(dim, dim))
 
-          lb = lbdim / dim
-          tr = (lbdim + plotdim) / dim
+          lb = old_div(lbdim, dim)
+          tr = old_div((lbdim + plotdim), dim)
           fig.subplots_adjust(left=lb, bottom=lb, right=tr, top=tr,
                               wspace=whspace, hspace=whspace)
 

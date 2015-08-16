@@ -1,5 +1,10 @@
 from __future__ import print_function
 from __future__ import absolute_import
+from __future__ import division
+from builtins import zip
+from builtins import str
+from builtins import range
+from past.utils import old_div
 # Licensed under an MIT open source license - see LICENSE
 
 import numpy as np
@@ -54,7 +59,7 @@ def isolateregions(binary_array, size_threshold=0, pad_size=5,
 
     # Remove skeletons which have less pixels than the threshold.
     if size_threshold != 0:
-        sums = nd.sum(binary_array, labels, range(1, num + 1))
+        sums = nd.sum(binary_array, labels, list(range(1, num + 1)))
         remove_fils = np.where(sums <= size_threshold)[0]
         for lab in remove_fils:
             binary_array[np.where(labels == lab + 1)] = 0
@@ -686,11 +691,11 @@ def _fix_small_holes(mask_array, rel_size=0.1):
     holes[np.where(lab_holes == out_label)] = reg_area + 1.
 
     # Sum up the regions and find holes smaller than the threshold.
-    sums = nd.sum(holes, lab_holes, range(1, n_holes + 1))
+    sums = nd.sum(holes, lab_holes, list(range(1, n_holes + 1)))
     if pixel_flag:  # Use number of pixels
         delete_holes = np.where(sums < rel_size)[0]
     else:  # Use relative size of holes.
-        delete_holes = np.where(sums / reg_area < rel_size)[0]
+        delete_holes = np.where(old_div(sums, reg_area) < rel_size)[0]
 
     # Return if there is nothing to delete.
     if delete_holes == []:

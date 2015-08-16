@@ -1,5 +1,10 @@
 from __future__ import print_function
 from __future__ import absolute_import
+from __future__ import division
+from builtins import zip
+from builtins import str
+from builtins import range
+from past.utils import old_div
 # Licensed under an MIT open source license - see LICENSE
 
 import numpy as np
@@ -60,7 +65,7 @@ def skeleton_length(skeleton):
     # 4-connected labels
     four_labels = me.label(skeleton, 4, background=0)
 
-    four_sizes = nd.sum(skeleton, four_labels, range(np.max(four_labels) + 1))
+    four_sizes = nd.sum(skeleton, four_labels, list(range(np.max(four_labels) + 1)))
 
     # Lengths is the number of pixels minus number of objects with more
     # than 1 pixel.
@@ -81,7 +86,7 @@ def skeleton_length(skeleton):
     eight_labels = me.label(skel_copy, 8, background=0)
 
     eight_sizes = nd.sum(
-        skel_copy, eight_labels, range(np.max(eight_labels) + 1))
+        skel_copy, eight_labels, list(range(np.max(eight_labels) + 1)))
 
     eight_length = (
         (np.sum(eight_sizes) - 1) - np.max(eight_labels)) * np.sqrt(2)
@@ -266,8 +271,8 @@ def pre_graph(labelisofil, branch_properties, interpts, ends):
         if w > 1.0 or w < 0.0:
             raise ValueError(
                 "Relative weighting w must be between 0.0 and 1.0.")
-        return (1 - w) * (length[idx] / np.sum(length)) + \
-            w * (intensity[idx] / np.sum(intensity))
+        return (1 - w) * (old_div(length[idx], np.sum(length))) + \
+            w * (old_div(intensity[idx], np.sum(intensity)))
 
     lengths = branch_properties["length"]
     branch_intensity = branch_properties["intensity"]
@@ -314,7 +319,7 @@ def pre_graph(labelisofil, branch_properties, interpts, ends):
 
         # Add the intersection labels. Also append those to nodes
         inter_nodes.append(
-            zip(product_gen(string.ascii_uppercase), inter_nodes_temp))
+            list(zip(product_gen(string.ascii_uppercase), inter_nodes_temp)))
         for alpha, node in zip(product_gen(string.ascii_uppercase),
                                inter_nodes_temp):
             nodes[n].append(alpha)
@@ -406,8 +411,8 @@ def longest_path(edge_list, nodes, verbose=False, lengths=None,
         paths = nx.shortest_path_length(G, weight='weight')
         values = []
         node_extrema = []
-        for i in paths.iterkeys():
-            j = max(paths[i].iteritems(), key=operator.itemgetter(1))
+        for i in paths.keys():
+            j = max(iter(paths[i].items()), key=operator.itemgetter(1))
             node_extrema.append((j[0], i))
             values.append(j[1])
         start, finish = node_extrema[values.index(max(values))]
@@ -502,7 +507,7 @@ def prune_graph(G, nodes, edge_list, max_path, labelisofil, branch_properties,
 
     for n in range(num):
         degree = G[n].degree()
-        single_connect = [key for key in degree.keys() if degree[key] == 1]
+        single_connect = [key for key in list(degree.keys()) if degree[key] == 1]
 
         delete_candidate = list(
             (set(nodes[n]) - set(max_path[n])) & set(single_connect))
@@ -522,7 +527,7 @@ def prune_graph(G, nodes, edge_list, max_path, labelisofil, branch_properties,
             length = edge[2][2]
             av_intensity = edge[2][3]
             if length < length_thresh \
-              and (av_intensity / np.sum(intensities)) < relintens_thresh:
+              and (old_div(av_intensity, np.sum(intensities))) < relintens_thresh:
                 edge_pts = np.where(labelisofil[n] == edge[2][0])
                 labelisofil[n][edge_pts] = 0
                 edge_list[n].remove(edge)
@@ -610,7 +615,7 @@ def main_length(max_path, edge_list, labelisofil, interpts, branch_lengths,
                               [1] * k)[-1][0] != label:
                         k += 1
                     intersec_pts.extend(inters[k-1])
-                    skeleton[zip(*inters[k-1])] = 2
+                    skeleton[list(zip(*inters[k-1]))] = 2
 
             # Remove unnecessary pixels
             count = 0

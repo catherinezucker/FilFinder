@@ -1,3 +1,6 @@
+from __future__ import division
+from builtins import zip
+from past.utils import old_div
 # Licensed under an MIT open source license - see LICENSE
 
 import numpy as np
@@ -42,7 +45,7 @@ def rht(mask, radius, ntheta=180, background_percentile=25, verbose=False):
     pad_mask = np.pad(mask.astype(float), radius, padwithnans)
 
     # The theta=0 case isn't handled properly
-    theta = np.linspace(np.pi/2., 1.5*np.pi, ntheta)
+    theta = np.linspace(old_div(np.pi,2.), 1.5*np.pi, ntheta)
 
     # Create a cube of all angle positions
     circle, mesh = circular_region(radius)
@@ -188,7 +191,7 @@ def circ_CI(theta, weights=None, u_ci=0.67, axis=0):
     # Now center the data around the mean to find the CI intervals
     mean_posn = find_nearest_posn(theta, mean_ang)
 
-    diff_posn = -1 * (theta.shape[0]/2 - mean_posn)
+    diff_posn = -1 * (old_div(theta.shape[0],2) - mean_posn)
 
     theta_copy = np.roll(theta, diff_posn)
 
@@ -197,7 +200,7 @@ def circ_CI(theta, weights=None, u_ci=0.67, axis=0):
 
     alpha = np.sum(weights * np.cos(2*theta_copy), axis=axis)
 
-    var_w = (1 - alpha) / (4 * vec_length2)
+    var_w = old_div((1 - alpha), (4 * vec_length2))
 
     # Make sure the CI stays within the interval. Otherwise assign it to
     # pi/2 (largest possible on interval of pi)
@@ -206,7 +209,7 @@ def circ_CI(theta, weights=None, u_ci=0.67, axis=0):
     if sin_arg <= 1:
         ci = np.arcsin(sin_arg)
     else:
-        ci = np.pi / 2.
+        ci = old_div(np.pi, 2.)
 
     samp_cis = np.vstack([mean_ang - ci, mean_ang + ci])
 

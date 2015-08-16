@@ -1,4 +1,7 @@
 from __future__ import print_function
+from __future__ import division
+from builtins import str
+from past.utils import old_div
 
 from astropy.io import fits
 from astropy import convolution
@@ -26,7 +29,7 @@ orig_hdr = hdr.copy()
 convolve_to_common = False
 regrid_to_common = True
 if convolve_to_common:
-    r = 460. / float(distance)
+    r = old_div(460., float(distance))
     if r != 1.:
         conv = np.sqrt(r ** 2. - 1) * \
             (beamwidth / np.sqrt(8*np.log(2)) / (np.abs(hdr["CDELT2"]) * 3600.))
@@ -47,7 +50,7 @@ if convolve_to_common:
 
 if regrid_to_common:
 
-    r = float(distance) / 140.
+    r = old_div(float(distance), 140.)
 
     if r != 1:
 

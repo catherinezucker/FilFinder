@@ -6,11 +6,17 @@ Utility functions for fil-finder package
 
 """
 from __future__ import print_function
+from __future__ import division
+from future import standard_library
+standard_library.install_aliases()
+from builtins import input
+from builtins import range
+from past.utils import old_div
 
 import itertools
 import numpy as np
 from scipy import optimize as op
-import thread
+import _thread
 import threading
 import time
 import os
@@ -35,12 +41,12 @@ def removearray(l, arr):
 def weighted_av(items, weight):
     weight = np.array(weight)[~np.isnan(weight)]
     if len(weight) == 0:
-        return sum(items) / len(items)
+        return old_div(sum(items), len(items))
     else:
         items = np.array(items)[~np.isnan(weight)]
         num = sum(items[i] * weight[i] for i in range(len(items)))
         denom = sum(weight[i] for i in range(len(items)))
-        return (num / denom) if denom != 0 else None
+        return (old_div(num, denom)) if denom != 0 else None
 
 
 def raw_input_with_timeout(prompt, timeout=30.0):
@@ -49,11 +55,11 @@ def raw_input_with_timeout(prompt, timeout=30.0):
     http://stackoverflow.com/questions/2933399/how-to-set-time-limit-on-input.
     '''
     print(prompt)
-    timer = threading.Timer(timeout, thread.interrupt_main)
+    timer = threading.Timer(timeout, _thread.interrupt_main)
     astring = None
     try:
         timer.start()
-        astring = raw_input(prompt)
+        astring = input(prompt)
     except KeyboardInterrupt:
         pass
     timer.cancel()
@@ -93,18 +99,18 @@ def timeit(method):
 def twodgaussian(h, cx, cy, wx, wy, b):
     wx = float(wx)
     wy = float(wy)
-    return lambda x, y: h * np.exp(-(((cx - x) / wx) ** 2. + ((cy - y) / wy) ** 2.) / 2) + b
+    return lambda x, y: h * np.exp(old_div(-((old_div((cx - x), wx)) ** 2. + (old_div((cy - y), wy)) ** 2.), 2)) + b
 
 
 def moments(data):
     total = data.sum()
     X, Y = np.indices(data.shape)
-    x = (X * data).sum() / total
-    y = (Y * data).sum() / total
+    x = old_div((X * data).sum(), total)
+    y = old_div((Y * data).sum(), total)
     col = data[:, int(y)]
-    wx = np.sqrt(np.abs((np.arange(col.size) - y) ** 2 * col).sum()/col.sum())
+    wx = np.sqrt(old_div(np.abs((np.arange(col.size) - y) ** 2 * col).sum(),col.sum()))
     row = data[int(x), :]
-    wy = np.sqrt(np.abs((np.arange(row.size) - x) ** 2 * row).sum()/row.sum())
+    wy = np.sqrt(old_div(np.abs((np.arange(row.size) - x) ** 2 * row).sum(),row.sum()))
     b = abs(np.median(data.ravel()))
     h = data.max() - b
     return h, x, y, wx, wy, b
@@ -166,18 +172,18 @@ def product_gen(n):
 
 
 def planck(T, freq):
-    return ((2.0 * (6.63 * 10 ** (-34)) * freq ** 3) / (9 * 10 ** 16)) *\
-        (1 / (np.expm1((6.63 * 10 ** (-34) * freq) / (1.38 * 10 ** (-23) * float(T)))))
+    return (old_div((2.0 * (6.63 * 10 ** (-34)) * freq ** 3), (9 * 10 ** 16))) *\
+        (old_div(1, (np.expm1(old_div((6.63 * 10 ** (-34) * freq), (1.38 * 10 ** (-23) * float(T)))))))
 
 
 def dens_func(B, kappa, I):
     kappa = 100 * kappa
-    return (I / (B * 10 ** 20)) * (1 / (kappa)) * 4787  # into sol.mass/pc
+    return (old_div(I, (B * 10 ** 20))) * (old_div(1, (kappa))) * 4787  # into sol.mass/pc
 
 
 def red_chisq(data, fit, nparam, sd):
     N = data.shape[0]
-    return np.sum(((fit - data) / sd) ** 2.) / float(N - nparam - 1)
+    return old_div(np.sum((old_div((fit - data), sd)) ** 2.), float(N - nparam - 1))
 
 
 def try_mkdir(name):

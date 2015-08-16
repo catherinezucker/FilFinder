@@ -9,6 +9,9 @@ Run from command line as: test_script.py image.fits
 
 '''
 from __future__ import print_function
+from __future__ import division
+from builtins import range
+from past.utils import old_div
 import numpy as np
 import matplotlib.pyplot as p
 import sys
@@ -27,11 +30,11 @@ bmwdth = 18.1 # "
 
 
 try:
-  img_freq = (3*10**14)/hdr["WAVE"] # hopefully the header has this
+  img_freq = old_div((3*10**14),hdr["WAVE"]) # hopefully the header has this
 except KeyError:
   img_freq = 110201.3541 # Line of 13CO, which I'm testing this on, Feb.6/13
-img_scale = (hdr['CDELT2']*(np.pi/180.0)*dist_to_img)
-img_beam = (bmwdth/np.sqrt(8*np.log(2.))) * (2*np.pi / 206265.) * dist_to_img # FWHM beamwidth
+img_scale = (hdr['CDELT2']*(old_div(np.pi,180.0))*dist_to_img)
+img_beam = (old_div(bmwdth,np.sqrt(8*np.log(2.)))) * (2*np.pi / 206265.) * dist_to_img # FWHM beamwidth
 
 ## Segment filamentary structure
 ## NOTE: the inputs are the image, the size of areas used for adaptive thresholding, the percentile to
