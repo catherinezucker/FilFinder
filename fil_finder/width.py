@@ -1,6 +1,8 @@
+from __future__ import print_function
+from __future__ import absolute_import
 # Licensed under an MIT open source license - see LICENSE
 
-from utilities import *
+from .utilities import *
 import numpy as np
 import scipy.ndimage as nd
 import scipy.optimize as op
@@ -162,7 +164,7 @@ def gauss_model(distance, rad_profile, weights, img_beam):
                                 maxfev=100*(len(distance)+1), sigma=weights)
         fit_errors = np.sqrt(np.diag(cov))
     except:
-        print "curve_fit failed."
+        print("curve_fit failed.")
         fit, fit_errors = p0, None
         return fit, fit_errors, gaussian, parameters, True
 

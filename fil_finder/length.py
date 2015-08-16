@@ -1,11 +1,13 @@
+from __future__ import print_function
+from __future__ import absolute_import
 # Licensed under an MIT open source license - see LICENSE
 
 import numpy as np
 from scipy.stats import nanmean
 import scipy.ndimage as nd
 import networkx as nx
-from utilities import *
-from pixel_ident import *
+from .utilities import *
+from .pixel_ident import *
 import operator
 import string
 import copy
@@ -425,7 +427,7 @@ def longest_path(edge_list, nodes, verbose=False, lengths=None,
                 assert isinstance(skeleton_arrays, list)
                 import matplotlib.pyplot as p
                 if verbose:
-                    print "Filament: %s / %s" % (n+1, num)
+                    print("Filament: %s / %s" % (n+1, num))
                 p.subplot(1, 2, 1)
                 p.imshow(skeleton_arrays[n], interpolation="nearest",
                          origin="lower")
@@ -637,7 +639,7 @@ def main_length(max_path, edge_list, labelisofil, interpts, branch_lengths,
                         " plots will be created.")
             import matplotlib.pyplot as p
             if verbose:
-                print "Filament: %s / %s" % (num+1, len(labelisofil))
+                print("Filament: %s / %s" % (num+1, len(labelisofil)))
 
             p.subplot(121)
             p.imshow(skeleton, origin='lower', interpolation="nearest")

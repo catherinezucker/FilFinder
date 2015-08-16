@@ -1,8 +1,10 @@
+from __future__ import print_function
+from __future__ import absolute_import
 # Licensed under an MIT open source license - see LICENSE
 
 import numpy as np
 import scipy.ndimage as nd
-from length import *
+from .length import *
 import matplotlib.pyplot as p
 import copy
 
@@ -630,7 +632,7 @@ def recombine_skeletons(skeletons, offsets, orig_size, pad_size,
             size_change_flag = True
 
         if verbose & size_change_flag:
-            print "REDUCED FILAMENT %s/%s TO FIT IN ORIGINAL ARRAY" % (n, num)
+            print("REDUCED FILAMENT %s/%s TO FIT IN ORIGINAL ARRAY" % (n, num))
 
         x, y = np.where(copy_skeleton >= 1)
         for i in range(len(x)):

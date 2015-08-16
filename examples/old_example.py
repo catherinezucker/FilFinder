@@ -8,6 +8,7 @@ Includes all working portions.
 Run from command line as: test_script.py image.fits
 
 '''
+from __future__ import print_function
 import numpy as np
 import matplotlib.pyplot as p
 import sys
@@ -67,7 +68,7 @@ p.imshow(mask_img,interpolation=None,origin="lower");p.show()
 
 ## Separate each filament into its own array
 isolatefilarr,mask, num, offsets = isolatefilaments(medskel,mask, 10)
-print "Initial Fil # : %s" % (num)
+print("Initial Fil # : %s" % (num))
 
 ## Here, we label each pixel in each filament based on the surrounding 8 pixels
 ## interpts are the intersection points, hubs are the number of intersections, ends are the pixels at the end of branches
@@ -140,9 +141,9 @@ for i in range(num):
 
 ## The main lengths, branch lengths, average curvature, and widths of the filaments have been calculated.
 
-print overall_lengths
-print curvature
-print overall_widths
+print(overall_lengths)
+print(curvature)
+print(overall_widths)
 
 ########## Missing printing out table of results, density and column density calulations
 

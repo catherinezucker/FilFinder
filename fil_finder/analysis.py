@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Licensed under an MIT open source license - see LICENSE
 
 import numpy as np
@@ -71,7 +72,7 @@ class Analysis(object):
             except ImportError:
                 import matplotlib.pyplot as plt
                 use_prettyplotlib = False
-                print "prettyplotlib not installed. Using matplotlib..."
+                print("prettyplotlib not installed. Using matplotlib...")
         else:
             import matplotlib.pyplot as plt
 
@@ -121,7 +122,7 @@ class Analysis(object):
             axes.set_xlabel(column)  # ADD UNITS!
 
           if self.verbose and not self.subplot:
-            print column+" Stats: %s" % (data_stats[column])
+            print(column+" Stats: %s" % (data_stats[column]))
             p.show()
 
           elif not self.subplot:
@@ -132,7 +133,7 @@ class Analysis(object):
           p.tight_layout()
           if self.verbose:
             for column in self.columns:
-              print column+" Stats: %s" % (data_stats[column])
+              print(column+" Stats: %s" % (data_stats[column]))
             p.show()
           else:
             fig.savefig(self.save_name+"_hists."+self.save_type)
@@ -151,7 +152,7 @@ class Analysis(object):
             except ImportError:
                 import matplotlib.pyplot as plt
                 use_prettyplotlib = False
-                print "prettyplotlib not installed. Using matplotlib..."
+                print("prettyplotlib not installed. Using matplotlib...")
         else:
             import matplotlib.pyplot as plt
 

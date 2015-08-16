@@ -22,12 +22,13 @@ Requires: numpy 1.7.1
           scikit-image 0.8.0
           networkx
 '''
+from __future__ import absolute_import
 
-from cores import *
-from length import *
-from pixel_ident import *
-from utilities import *
-from width import *
+from .cores import *
+from .length import *
+from .pixel_ident import *
+from .utilities import *
+from .width import *
 
-from analysis import Analysis
-from filfind_class import fil_finder_2D
+from .analysis import Analysis
+from .filfind_class import fil_finder_2D

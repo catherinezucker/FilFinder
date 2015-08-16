@@ -5,6 +5,7 @@ Utility functions for fil-finder package
 
 
 """
+from __future__ import print_function
 
 import itertools
 import numpy as np
@@ -47,7 +48,7 @@ def raw_input_with_timeout(prompt, timeout=30.0):
     Manual input with a timeout. Code from
     http://stackoverflow.com/questions/2933399/how-to-set-time-limit-on-input.
     '''
-    print prompt
+    print(prompt)
     timer = threading.Timer(timeout, thread.interrupt_main)
     astring = None
     try:
@@ -76,8 +77,8 @@ def timeit(method):
         result = method(*args, **kw)
         te = time.time()
 
-        print '%r (%r, %r) %2.2f sec' % \
-            (method.__name__, args, kw, te - ts)
+        print('%r (%r, %r) %2.2f sec' % \
+            (method.__name__, args, kw, te - ts))
         return result
 
     return timed

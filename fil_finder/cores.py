@@ -9,10 +9,12 @@ Contains: abs_thresh
 subtract_cores
 
 """
+from __future__ import print_function
+from __future__ import absolute_import
 
 import numpy as np
 from scipy.ndimage import label
-from utilities import *
+from .utilities import *
 
 
 def abs_thresh(arr,thresh_value,img_scale,img_freq):
@@ -42,7 +44,7 @@ def subtract_cores(core_array,full_output=False):
     ## Set Core region to fit background, should be approx of rest of filament
 
     except:
-        print "Fit Failed on Core %s" % (n)
+        print("Fit Failed on Core %s" % (n))
 
 
     if full_output:
